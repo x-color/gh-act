@@ -13,6 +13,8 @@ import (
 	"github.com/fatih/color"
 )
 
+type agoFn func(time.Time) time.Time
+
 var (
 	weekFlag  = flag.Bool("week", false, "aggregate by week")
 	monthFlag = flag.Bool("month", false, "aggregate by month")
@@ -63,16 +65,18 @@ func aggregate() (Activity, Activity, error) {
 		return Activity{}, Activity{}, err
 	}
 
-	agoFn := weekAgo
+	var fn agoFn
 	switch {
 	case *weekFlag:
-		agoFn = weekAgo
+		fn = weekAgo
 	case *monthFlag:
-		agoFn = monthAgo
+		fn = monthAgo
 	case *yearFlag:
-		agoFn = yearAgo
+		fn = yearAgo
+	default:
+		fn = weekAgo
 	}
-	return getActivities(client, time.Now(), agoFn)
+	return getActivities(client, time.Now(), fn)
 }
 
 func showActivity(cur, pre Activity) {
@@ -166,14 +170,14 @@ type Activity struct {
 	reviews int
 }
 
-func getActivities(client api.GQLClient, d time.Time, agoFn func(time.Time) time.Time) (Activity, Activity, error) {
-	ago := agoFn(d)
+func getActivities(client api.GQLClient, d time.Time, fn agoFn) (Activity, Activity, error) {
+	ago := fn(d)
 	r1, err := countActivityQuery(client, ago, d)
 	if err != nil {
 		return Activity{}, Activity{}, err
 	}
 
-	r2, err := countActivityQuery(client, agoFn(ago), ago)
+	r2, err := countActivityQuery(client, fn(ago), ago)
 	if err != nil {
 		return Activity{}, Activity{}, err
 	}
