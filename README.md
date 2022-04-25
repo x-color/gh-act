@@ -22,7 +22,8 @@ This means
 
 Run `gh act -help` to show more details.
 
-```console
+```shell
+$ gh act -help
 act is a tool to show your GitHub activity.
 It aggregates specified period and compare them and the previous period compare them and the previous period.
 
