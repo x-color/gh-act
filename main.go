@@ -41,12 +41,20 @@ Usage:`
 		flag.PrintDefaults()
 	}
 	flag.Parse()
-	cur, pre, err := aggregate()
-	if err != nil {
+
+	if err := act(); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
+}
+
+func act() error {
+	cur, pre, err := aggregate()
+	if err != nil {
+		return err
+	}
 	showActivity(cur, pre)
+	return nil
 }
 
 func aggregate() (Activity, Activity, error) {
